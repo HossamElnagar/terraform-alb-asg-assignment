@@ -1,63 +1,62 @@
-name: Iac Workflow (Terraform)
-run-name: terraform ${{ inputs.action }}
+name: IaC Workflow (Terraform)
+
+run-name: Terraform ${{ inputs.action }}
 
 on:
   workflow_dispatch:
     inputs:
       action:
-        description: Terraform Action
+        description: "Choose Terraform action"
+        required: true
         type: choice
         options:
           - plan
           - apply
           - destroy
-        required: true
 
       env:
-        description: Environment
         type: choice
         options:
-          - dev
-          - prod
-        required: true
+            - dev
+            - prod
 
 jobs:
-  terraform-action:
-    runs-on: ubuntu-latest
+  terraform-actions:
     environment: ${{ inputs.env }}
-
-    defaults:
-      run:
-        working-directory: ./infra
+    runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v6
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-west-1
+          aws-region: eu-west-1
+    
 
+      
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
-      - name: Terraform Init
-        run: terraform init
 
-      - name: Terraform Validate
-        run: terraform validate
+      - name: Terraform Init
+        working-directory: ./infra
+        run: terraform init
 
       - name: Terraform Plan
         if: ${{ inputs.action == 'plan' }}
-        run: terraform plan 
+        working-directory: ./infra
+        run: terraform plan
 
       - name: Terraform Apply
         if: ${{ inputs.action == 'apply' }}
-        run: terraform apply -auto-approve 
+        working-directory: ./infra
+        run: terraform apply -auto-approve
 
       - name: Terraform Destroy
         if: ${{ inputs.action == 'destroy' }}
-        run: terraform destroy -auto-approve 
+        working-directory: ./infra
+        run: terraform destroy -auto-approve
