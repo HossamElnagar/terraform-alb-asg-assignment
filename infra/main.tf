@@ -132,3 +132,41 @@ module "my_custom_alb" {
     }
   }
 }
+
+# 9. S3 Bucket Configuration
+resource "aws_s3_bucket" "web_bucket" {
+  bucket = "hossam-bucket-2026" 
+}
+
+resource "aws_s3_bucket_website_configuration" "web_config" {
+  bucket = aws_s3_bucket.web_bucket.id
+
+  index_document {
+    suffix = "index.html"
+  }
+}
+
+resource "aws_s3_object" "html_file" {
+  bucket       = aws_s3_bucket.web_bucket.id
+  key          = "index.html"
+  source       = "${path.root}/../index.html" 
+  content_type = "text/html"
+}
+
+# 10. ALB Listener HTTP (Redirect to S3)
+resource "aws_lb_listener" "http" {
+  load_balancer_arn = module.my_custom_alb.alb_arn
+  port              = "80"
+  protocol          = "HTTP"
+
+  default_action {
+    type = "redirect"
+
+    redirect {
+      host        = aws_s3_bucket_website_configuration.web_config.website_endpoint
+      port        = "80"
+      protocol    = "HTTP"
+      status_code = "HTTP_301"
+    }
+  }
+}
