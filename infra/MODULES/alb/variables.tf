@@ -1,23 +1,22 @@
 variable "alb_name" {
-  type        = string
-  description = "Name of the ALB"
+  type = string
 }
 
 variable "vpc_id" {
-  type        = string
-  description = "VPC ID where ALB will be deployed"
+  type = string
 }
 
 variable "subnets" {
-  type        = list(string)
-  description = "List of public subnet IDs for the ALB"
+  type = list(string)
 }
 
 variable "target_groups" {
   type = map(object({
-    port        = number
-    protocol    = string
-    target_id   = string 
+    port     = number
+    protocol = string
   }))
-  description = "Map of target groups to create and attach"
+}
+
+variable "security_groups" {
+  type = list(string)
 }
