@@ -102,16 +102,16 @@ resource "aws_security_group" "web_sg" {
   }
 }
 
-# 7. EC2 Instance
+## 7. EC2 Instance
 resource "aws_instance" "web_server" {
-  ami           = data.aws_ami.ubuntu.id
-  instance_type = "t2.micro"
-  subnet_id     = aws_subnet.public_subnet_1.id
-
+  ami                    = data.aws_ami.ubuntu.id
+  instance_type          = "t2.micro"
+  subnet_id              = aws_subnet.public_subnet_1.id
   vpc_security_group_ids = [aws_security_group.web_sg.id]
-  
+
+  # استدعاء السكريبت وحقن ملف الـ index اللي بره الـ infra بخطوة واحدة
   user_data = base64encode(templatefile("${path.module}/user_data.sh", {
-    html_content = file("${path.module}/../index.html")
+    html_content = file("${path.root}/../index.html")
   }))
   
   tags = {
