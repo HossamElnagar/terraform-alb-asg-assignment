@@ -110,7 +110,7 @@ resource "aws_instance" "web_server" {
   vpc_security_group_ids = [aws_security_group.web_sg.id]
 
   # استدعاء السكريبت وحقن ملف الـ index اللي بره الـ infra بخطوة واحدة
-  user_data = base64encode(templatefile("${path.module}/user_data.sh", {
+  user_data = base64encode(templatefile("${path.module}/../user_data.sh", {
     html_content = file("${path.root}/../index.html")
   }))
   
