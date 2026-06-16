@@ -150,11 +150,11 @@ resource "aws_instance" "web_server" {
 
   associate_public_ip_address = true
 
-  user_data = base64encode(
-    templatefile("${path.module}/../user_data.sh", {
-      html_content = file("${path.root}/../index.html")
-    })
-  )
+  user_data_base64 = base64encode(
+  templatefile("${path.module}/../user_data.sh", {
+    html_content = file("${path.root}/../index.html")
+  })
+)
 
   tags = {
     Name = "${var.vpc_name}-web-server"
@@ -182,18 +182,12 @@ module "my_custom_alb" {
   ]
 
   target_groups = {
-    web-server-tg = {
-      port     = 80
-      protocol = "HTTP"
-    }
+  web-server-tg = {
+    port      = 80
+    protocol  = "HTTP"
+    target_id = aws_instance.web_server.id
+  }
+
   }
 }
 
-# ---------------------------------------
-# Attach EC2 to Target Group
-# ---------------------------------------
-resource "aws_lb_target_group_attachment" "web_attachment" {
-  target_group_arn = module.my_custom_alb.target_group_arns["web-server-tg"]
-  target_id = aws_instance.web_server.id
-  port = 80
-}

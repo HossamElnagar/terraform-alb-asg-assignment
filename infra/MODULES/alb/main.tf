@@ -14,23 +14,23 @@ module "alb_official" {
       protocol = "HTTP"
 
       forward = {
-        target_group_key = keys(var.target_groups)[0]
+        target_group_key = "web-server-tg"
       }
     }
   }
 
   target_groups = {
-    for key, tg in var.target_groups :
-    key => {
-      protocol    = tg.protocol
-      port        = tg.port
-      target_type = "instance"
-
-      health_check = {
-        enabled = true
-        path    = "/"
-        matcher = "200"
-      }
+  for key, tg in var.target_groups :
+  key => {
+    protocol    = tg.protocol
+    port        = tg.port
+    target_type = "instance"
+  create_attachment = false
+    health_check = {
+      enabled = true
+      path    = "/"
+      matcher = "200"
     }
   }
+}
 }
